@@ -1,55 +1,45 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Timer, clampDuration, createStarterTimers, createTimer, formatTime, loadTimers, saveTimers } from './timer';
+import { Timer, clampDuration, createTimer, formatTime, loadTimers, saveTimers } from './timer';
 import { TimerList } from './components/TimerList';
-import { TimerStage } from './components/TimerStage';
 
-const tickTimers = (timers: Timer[]): Timer[] =>
-  timers.map((timer) => {
-    if (!timer.isRunning || timer.remainingSeconds <= 0) {
-      return timer;
-    }
+const MAX_TIMERS = 10;
+const MAX_NAME_LENGTH = 15;
+const MAX_DURATION_SECONDS = 59 * 60 + 59;
+const MIN_DURATION_SECONDS = 1;
 
-    const nextRemainingSeconds = timer.remainingSeconds - 1;
+const normalizeName = (name: string) => name.trim().slice(0, MAX_NAME_LENGTH);
 
-    return {
-      ...timer,
-      remainingSeconds: nextRemainingSeconds,
-      isRunning: nextRemainingSeconds > 0,
-    };
-  });
+const keepDurationInRange = (seconds: number) =>
+  Math.min(MAX_DURATION_SECONDS, Math.max(MIN_DURATION_SECONDS, seconds));
 
 const App = () => {
   const [timers, setTimers] = useState<Timer[]>(loadTimers);
-  const [activeTimerId, setActiveTimerId] = useState<string | null>(null);
+  const [selectedTimerId, setSelectedTimerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTimers((currentTimers) =>
+      currentTimers.map((timer) => (timer.isRunning ? { ...timer, isRunning: false } : timer)),
+    );
+  }, []);
 
   useEffect(() => {
     if (timers.length === 0) {
-      const starterTimers = createStarterTimers();
-      setTimers(starterTimers);
-      setActiveTimerId(starterTimers[0]?.id ?? null);
+      setSelectedTimerId(null);
       return;
     }
 
-    if (!activeTimerId || !timers.some((timer) => timer.id === activeTimerId)) {
-      setActiveTimerId(timers[0]?.id ?? null);
+    if (!selectedTimerId || !timers.some((timer) => timer.id === selectedTimerId)) {
+      setSelectedTimerId(timers[0]?.id ?? null);
     }
-  }, [activeTimerId, timers]);
+  }, [selectedTimerId, timers]);
 
   useEffect(() => {
     saveTimers(timers);
   }, [timers]);
 
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setTimers((currentTimers) => tickTimers(currentTimers));
-    }, 1000);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
-
-  const activeTimer = useMemo(
-    () => timers.find((timer) => timer.id === activeTimerId) ?? timers[0] ?? null,
-    [activeTimerId, timers],
+  const selectedTimer = useMemo(
+    () => timers.find((timer) => timer.id === selectedTimerId) ?? timers[0] ?? null,
+    [selectedTimerId, timers],
   );
 
   const patchTimer = (timerId: string, updater: (timer: Timer) => Timer) => {
@@ -61,7 +51,7 @@ const App = () => {
   const updateName = (timerId: string, name: string) => {
     patchTimer(timerId, (timer) => ({
       ...timer,
-      name,
+      name: normalizeName(name) || 'Timer',
     }));
   };
 
@@ -69,10 +59,10 @@ const App = () => {
     const parsedMinutes = Number.parseInt(minutes, 10);
 
     patchTimer(timerId, (timer) => {
-      const nextDurationSeconds = clampDuration(
+      const nextDurationSeconds = keepDurationInRange(clampDuration(
         Number.isFinite(parsedMinutes) ? parsedMinutes : 0,
         timer.durationSeconds % 60,
-      );
+      ));
 
       return {
         ...timer,
@@ -87,10 +77,10 @@ const App = () => {
     const parsedSeconds = Number.parseInt(seconds, 10);
 
     patchTimer(timerId, (timer) => {
-      const nextDurationSeconds = clampDuration(
+      const nextDurationSeconds = keepDurationInRange(clampDuration(
         Math.floor(timer.durationSeconds / 60),
         Number.isFinite(parsedSeconds) ? parsedSeconds : 0,
-      );
+      ));
 
       return {
         ...timer,
@@ -102,24 +92,22 @@ const App = () => {
   };
 
   const addTimer = () => {
+    if (timers.length >= MAX_TIMERS) {
+      return;
+    }
+
     const timer = createTimer({ name: `Timer ${timers.length + 1}`, minutes: 1, seconds: 0 });
 
     setTimers((currentTimers) => [...currentTimers, timer]);
-    setActiveTimerId(timer.id);
+    setSelectedTimerId(timer.id);
   };
 
   const removeTimer = (timerId: string) => {
     setTimers((currentTimers) => {
       const nextTimers = currentTimers.filter((timer) => timer.id !== timerId);
 
-      if (nextTimers.length === 0) {
-        const starterTimers = createStarterTimers();
-        setActiveTimerId(starterTimers[0]?.id ?? null);
-        return starterTimers;
-      }
-
-      if (activeTimerId === timerId) {
-        setActiveTimerId(nextTimers[0]?.id ?? null);
+      if (selectedTimerId === timerId) {
+        setSelectedTimerId(nextTimers[0]?.id ?? null);
       }
 
       return nextTimers;
@@ -127,47 +115,8 @@ const App = () => {
   };
 
   const selectTimer = (timerId: string) => {
-    setActiveTimerId(timerId);
-    patchTimer(timerId, (timer) => ({
-      ...timer,
-      remainingSeconds: timer.remainingSeconds > 0 ? timer.remainingSeconds : timer.durationSeconds,
-      isRunning: true,
-    }));
+    setSelectedTimerId(timerId);
   };
-
-  const toggleActiveTimer = () => {
-    if (!activeTimer) {
-      return;
-    }
-
-    patchTimer(activeTimer.id, (timer) => {
-      const resetRemainingSeconds = timer.remainingSeconds > 0 ? timer.remainingSeconds : timer.durationSeconds;
-
-      return {
-        ...timer,
-        remainingSeconds: resetRemainingSeconds,
-        isRunning: !timer.isRunning && resetRemainingSeconds > 0 ? true : !timer.isRunning,
-      };
-    });
-  };
-
-  const resetTimer = (timerId: string) => {
-    patchTimer(timerId, (timer) => ({
-      ...timer,
-      remainingSeconds: timer.durationSeconds,
-      isRunning: false,
-    }));
-  };
-
-  const normalizedActiveTimer = activeTimer
-    ? {
-        ...activeTimer,
-        progress:
-          activeTimer.durationSeconds === 0
-            ? 1
-            : 1 - activeTimer.remainingSeconds / activeTimer.durationSeconds,
-      }
-    : null;
 
   return (
     <main className="app-shell">
@@ -175,39 +124,32 @@ const App = () => {
         <p className="eyebrow">Timplo</p>
         <h1>Simple tap-to-control countdown timers for web and mobile.</h1>
         <p className="hero-copy">
-          Create multiple named timers, edit their duration, pick the one you want,
-          and tap the active view to pause or resume.
+          Build your timer library first: add timers, edit names and durations,
+          remove timers you do not need, and select the one you want to run next.
         </p>
       </section>
 
-      <section className="layout">
+      <section className="layout layout-library">
         <TimerList
-          activeTimerId={activeTimerId}
+          activeTimerId={selectedTimerId}
+          canAddTimer={timers.length < MAX_TIMERS}
           onAddTimer={addTimer}
           onDeleteTimer={removeTimer}
           onEditMinutes={updateMinutes}
           onEditName={updateName}
           onEditSeconds={updateSeconds}
-          onResetTimer={resetTimer}
           onSelectTimer={selectTimer}
-          onToggleTimer={toggleActiveTimer}
           timers={timers}
-        />
-
-        <TimerStage
-          activeTimer={normalizedActiveTimer}
-          onResetTimer={resetTimer}
-          onToggleTimer={toggleActiveTimer}
         />
       </section>
 
       <footer className="footer-note">
-        {activeTimer ? (
+        {selectedTimer ? (
           <span>
-            Active timer: <strong>{activeTimer.name}</strong> at {formatTime(activeTimer.remainingSeconds)}
+            Selected for next step: <strong>{selectedTimer.name}</strong> at {formatTime(selectedTimer.durationSeconds)}
           </span>
         ) : (
-          <span>No active timer yet.</span>
+          <span>No timer selected yet.</span>
         )}
       </footer>
     </main>

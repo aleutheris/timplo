@@ -2,27 +2,25 @@ import { Timer, formatTime } from '../timer';
 
 type TimerListProps = {
   activeTimerId: string | null;
+  canAddTimer: boolean;
   onAddTimer: () => void;
   onDeleteTimer: (timerId: string) => void;
   onEditMinutes: (timerId: string, minutes: string) => void;
   onEditName: (timerId: string, name: string) => void;
   onEditSeconds: (timerId: string, seconds: string) => void;
-  onResetTimer: (timerId: string) => void;
   onSelectTimer: (timerId: string) => void;
-  onToggleTimer: () => void;
   timers: Timer[];
 };
 
 export const TimerList = ({
   activeTimerId,
+  canAddTimer,
   onAddTimer,
   onDeleteTimer,
   onEditMinutes,
   onEditName,
   onEditSeconds,
-  onResetTimer,
   onSelectTimer,
-  onToggleTimer,
   timers,
 }: TimerListProps) => (
   <aside className="panel timer-list-panel">
@@ -32,10 +30,12 @@ export const TimerList = ({
         <h2>Build a stack of timers</h2>
       </div>
 
-      <button className="secondary-button" type="button" onClick={onAddTimer}>
+      <button className="secondary-button" type="button" onClick={onAddTimer} disabled={!canAddTimer}>
         Add timer
       </button>
     </div>
+
+    {!canAddTimer ? <p className="panel-helper">Maximum of 10 timers reached.</p> : null}
 
     <div className="timer-grid">
       {timers.map((timer) => {
@@ -58,6 +58,7 @@ export const TimerList = ({
               <span>Name</span>
               <input
                 aria-label={`Timer name for ${timer.name}`}
+                maxLength={15}
                 type="text"
                 value={timer.name}
                 onChange={(event) => onEditName(timer.id, event.target.value)}
@@ -70,6 +71,7 @@ export const TimerList = ({
                 <input
                   aria-label={`Minutes for ${timer.name}`}
                   inputMode="numeric"
+                  max="59"
                   min="0"
                   type="number"
                   value={Math.floor(timer.durationSeconds / 60)}
@@ -93,13 +95,7 @@ export const TimerList = ({
 
             <div className="timer-actions">
               <button className="primary-button" type="button" onClick={() => onSelectTimer(timer.id)}>
-                Focus
-              </button>
-              <button className="secondary-button" type="button" onClick={onToggleTimer}>
-                Pause / resume
-              </button>
-              <button className="secondary-button" type="button" onClick={() => onResetTimer(timer.id)}>
-                Reset
+                Select
               </button>
               <button className="danger-button" type="button" onClick={() => onDeleteTimer(timer.id)}>
                 Remove
