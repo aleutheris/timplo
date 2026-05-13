@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Timer, clampDuration, createTimer, formatTime, loadTimers, saveTimers } from './timer';
 import { TimerList } from './components/TimerList';
+import { TimerStage } from './components/TimerStage';
 
 const MAX_TIMERS = 10;
 const MAX_NAME_LENGTH = 15;
@@ -12,9 +13,37 @@ const normalizeName = (name: string) => name.trim().slice(0, MAX_NAME_LENGTH);
 const keepDurationInRange = (seconds: number) =>
   Math.min(MAX_DURATION_SECONDS, Math.max(MIN_DURATION_SECONDS, seconds));
 
+const tickTimers = (timers: Timer[]): Timer[] =>
+  timers.map((timer) => {
+    if (!timer.isRunning) {
+      return timer;
+    }
+
+    const nextRemainingSeconds = timer.remainingSeconds - 1;
+
+    if (nextRemainingSeconds <= 0) {
+      return {
+        ...timer,
+        remainingSeconds: timer.durationSeconds,
+        isRunning: false,
+        hasStarted: false,
+      };
+    }
+
+    return {
+      ...timer,
+      remainingSeconds: nextRemainingSeconds,
+      isRunning: true,
+      hasStarted: true,
+    };
+  });
+
+type ViewMode = 'library' | 'selected';
+
 const App = () => {
   const [timers, setTimers] = useState<Timer[]>(loadTimers);
   const [selectedTimerId, setSelectedTimerId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('library');
 
   useEffect(() => {
     setTimers((currentTimers) =>
@@ -36,6 +65,14 @@ const App = () => {
   useEffect(() => {
     saveTimers(timers);
   }, [timers]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setTimers((currentTimers) => tickTimers(currentTimers));
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const selectedTimer = useMemo(
     () => timers.find((timer) => timer.id === selectedTimerId) ?? timers[0] ?? null,
@@ -108,6 +145,9 @@ const App = () => {
 
       if (selectedTimerId === timerId) {
         setSelectedTimerId(nextTimers[0]?.id ?? null);
+        if (nextTimers.length === 0) {
+          setViewMode('library');
+        }
       }
 
       return nextTimers;
@@ -115,8 +155,83 @@ const App = () => {
   };
 
   const selectTimer = (timerId: string) => {
+    setTimers((currentTimers) =>
+      currentTimers.map((timer) =>
+        timer.id === timerId
+          ? timer
+          : {
+              ...timer,
+              isRunning: false,
+            },
+      ),
+    );
     setSelectedTimerId(timerId);
+    setViewMode('selected');
   };
+
+  const backToLibrary = () => {
+    setViewMode('library');
+  };
+
+  const toggleSelectedTimer = () => {
+    if (!selectedTimerId) {
+      return;
+    }
+
+    setTimers((currentTimers) =>
+      currentTimers.map((timer) => {
+        if (timer.id !== selectedTimerId) {
+          return {
+            ...timer,
+            isRunning: false,
+          };
+        }
+
+        if (timer.isRunning) {
+          return {
+            ...timer,
+            isRunning: false,
+            hasStarted: true,
+          };
+        }
+
+        return {
+          ...timer,
+          isRunning: true,
+          hasStarted: true,
+        };
+      }),
+    );
+  };
+
+  const resetSelectedTimer = () => {
+    if (!selectedTimerId) {
+      return;
+    }
+
+    setTimers((currentTimers) =>
+      currentTimers.map((timer) =>
+        timer.id === selectedTimerId
+          ? {
+              ...timer,
+              remainingSeconds: timer.durationSeconds,
+              isRunning: false,
+              hasStarted: false,
+            }
+          : {
+              ...timer,
+              isRunning: false,
+            },
+      ),
+    );
+  };
+
+  const selectedTimerDisplay = selectedTimer
+    ? {
+        ...selectedTimer,
+        state: selectedTimer.isRunning ? 'running' : selectedTimer.hasStarted ? 'stopped' : 'initial',
+      }
+    : null;
 
   return (
     <main className="app-shell">
@@ -124,29 +239,40 @@ const App = () => {
         <p className="eyebrow">Timplo</p>
         <h1>Simple tap-to-control countdown timers for web and mobile.</h1>
         <p className="hero-copy">
-          Build your timer library first: add timers, edit names and durations,
-          remove timers you do not need, and select the one you want to run next.
+          Create and manage your timer list, then pick one timer to open an enlarged
+          square view where tap controls start, stop, and resume.
         </p>
       </section>
 
-      <section className="layout layout-library">
-        <TimerList
-          activeTimerId={selectedTimerId}
-          canAddTimer={timers.length < MAX_TIMERS}
-          onAddTimer={addTimer}
-          onDeleteTimer={removeTimer}
-          onEditMinutes={updateMinutes}
-          onEditName={updateName}
-          onEditSeconds={updateSeconds}
-          onSelectTimer={selectTimer}
-          timers={timers}
-        />
-      </section>
+      {viewMode === 'library' ? (
+        <section className="layout layout-library">
+          <TimerList
+            activeTimerId={selectedTimerId}
+            canAddTimer={timers.length < MAX_TIMERS}
+            onAddTimer={addTimer}
+            onDeleteTimer={removeTimer}
+            onEditMinutes={updateMinutes}
+            onEditName={updateName}
+            onEditSeconds={updateSeconds}
+            onSelectTimer={selectTimer}
+            timers={timers}
+          />
+        </section>
+      ) : (
+        <section className="layout layout-selected">
+          <TimerStage
+            activeTimer={selectedTimerDisplay}
+            onBack={backToLibrary}
+            onResetTimer={resetSelectedTimer}
+            onToggleTimer={toggleSelectedTimer}
+          />
+        </section>
+      )}
 
       <footer className="footer-note">
         {selectedTimer ? (
           <span>
-            Selected for next step: <strong>{selectedTimer.name}</strong> at {formatTime(selectedTimer.durationSeconds)}
+            Selected timer: <strong>{selectedTimer.name}</strong> at {formatTime(selectedTimer.remainingSeconds)}
           </span>
         ) : (
           <span>No timer selected yet.</span>

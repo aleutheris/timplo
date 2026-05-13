@@ -50,7 +50,7 @@ export const TimerList = ({
               </div>
 
               <span className={`status-pill${timer.isRunning ? ' status-running' : ''}`}>
-                {timer.remainingSeconds === 0 ? 'Done' : timer.isRunning ? 'Running' : 'Paused'}
+                {timer.isRunning ? 'Running' : timer.hasStarted ? 'Stopped' : 'Ready'}
               </span>
             </button>
 

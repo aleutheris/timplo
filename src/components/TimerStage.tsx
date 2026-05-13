@@ -1,37 +1,44 @@
 import { Timer, formatTime } from '../timer';
 
 type TimerStageProps = {
-  activeTimer: (Timer & { progress: number }) | null;
-  onResetTimer: (timerId: string) => void;
+  activeTimer: (Timer & { state: 'initial' | 'running' | 'stopped' }) | null;
+  onBack: () => void;
+  onResetTimer: () => void;
   onToggleTimer: () => void;
 };
 
-export const TimerStage = ({ activeTimer, onResetTimer, onToggleTimer }: TimerStageProps) => {
+export const TimerStage = ({ activeTimer, onBack, onResetTimer, onToggleTimer }: TimerStageProps) => {
   const stageTone = activeTimer
-    ? activeTimer.remainingSeconds === 0
-      ? 'stage-finished'
-      : activeTimer.isRunning
-        ? 'stage-running'
-        : 'stage-paused'
+    ? activeTimer.state === 'running'
+      ? 'stage-running'
+      : activeTimer.state === 'stopped'
+        ? 'stage-stopped'
+        : 'stage-initial'
     : 'stage-idle';
+
+  const helperText = activeTimer
+    ? activeTimer.state === 'running'
+      ? 'Tap to stop'
+      : activeTimer.state === 'stopped'
+        ? 'Tap to resume'
+        : 'Tap to start'
+    : 'Select a timer from the library';
 
   return (
     <section className={`panel stage-panel ${stageTone}`}>
+      <div className="stage-toolbar">
+        <button className="secondary-button" type="button" onClick={onBack}>
+          Back to timers
+        </button>
+      </div>
+
       {activeTimer ? (
         <button className="stage-touch-target" type="button" onClick={onToggleTimer}>
-          <div className="stage-ring" style={{ ['--progress' as string]: activeTimer.progress }}>
-            <div className="stage-core">
-              <p className="panel-label">Active timer</p>
-              <h2>{activeTimer.name}</h2>
-              <strong className="stage-time">{formatTime(activeTimer.remainingSeconds)}</strong>
-              <p className="stage-status">
-                {activeTimer.remainingSeconds === 0
-                  ? 'Complete'
-                  : activeTimer.isRunning
-                    ? 'Tap to pause'
-                    : 'Tap to resume'}
-              </p>
-            </div>
+          <div className="stage-square">
+            <p className="panel-label">Selected timer</p>
+            <h2>{activeTimer.name}</h2>
+            <strong className="stage-time">{formatTime(activeTimer.remainingSeconds)}</strong>
+            <p className="stage-status">{helperText}</p>
           </div>
         </button>
       ) : (
@@ -44,10 +51,7 @@ export const TimerStage = ({ activeTimer, onResetTimer, onToggleTimer }: TimerSt
 
       {activeTimer ? (
         <div className="stage-footer">
-          <button className="secondary-button" type="button" onClick={onToggleTimer}>
-            Pause / resume
-          </button>
-          <button className="secondary-button" type="button" onClick={() => onResetTimer(activeTimer.id)}>
+          <button className="secondary-button" type="button" onClick={onResetTimer}>
             Reset
           </button>
         </div>

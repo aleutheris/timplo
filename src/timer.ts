@@ -4,6 +4,7 @@ export type Timer = {
   durationSeconds: number;
   remainingSeconds: number;
   isRunning: boolean;
+  hasStarted: boolean;
 };
 
 export type TimerDraft = {
@@ -48,6 +49,7 @@ export const createTimer = (draft: TimerDraft): Timer => {
     durationSeconds,
     remainingSeconds: durationSeconds,
     isRunning: false,
+    hasStarted: false,
   };
 };
 
@@ -98,6 +100,9 @@ export const loadTimers = (): Timer[] => {
         Math.max(0, Math.floor(timer.remainingSeconds)),
         Math.max(0, Math.floor(timer.durationSeconds)),
       ),
+      hasStarted: typeof (timer as { hasStarted?: unknown }).hasStarted === 'boolean'
+        ? Boolean((timer as { hasStarted?: boolean }).hasStarted)
+        : false,
     }));
 
     return timers.length > 0 ? timers : createStarterTimers();

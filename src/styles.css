@@ -90,6 +90,10 @@ button {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.layout-selected {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .panel {
   background: rgba(7, 15, 29, 0.78);
   border: 1px solid rgba(153, 177, 216, 0.15);
@@ -263,7 +267,7 @@ button {
 .stage-panel {
   position: relative;
   overflow: hidden;
-  min-height: 620px;
+  min-height: 680px;
   padding: 24px;
 }
 
@@ -278,16 +282,16 @@ button {
   filter: blur(8px);
 }
 
+.stage-initial {
+  background: linear-gradient(160deg, rgba(14, 34, 67, 0.95), rgba(10, 25, 49, 0.95));
+}
+
 .stage-running {
-  background: linear-gradient(160deg, rgba(13, 24, 44, 0.94), rgba(6, 18, 24, 0.94));
+  background: linear-gradient(160deg, rgba(10, 53, 38, 0.95), rgba(8, 38, 29, 0.95));
 }
 
-.stage-paused {
-  background: linear-gradient(160deg, rgba(17, 20, 41, 0.94), rgba(7, 15, 29, 0.94));
-}
-
-.stage-finished {
-  background: linear-gradient(160deg, rgba(11, 29, 21, 0.96), rgba(7, 20, 14, 0.96));
+.stage-stopped {
+  background: linear-gradient(160deg, rgba(68, 54, 13, 0.95), rgba(49, 39, 10, 0.95));
 }
 
 .stage-idle {
@@ -296,7 +300,7 @@ button {
 
 .stage-touch-target {
   width: 100%;
-  min-height: 480px;
+  min-height: 520px;
   display: grid;
   place-items: center;
   border: 0;
@@ -305,36 +309,28 @@ button {
   padding: 0;
 }
 
-.stage-ring {
-  --progress: 0;
-  width: min(100%, 460px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  padding: 18px;
-  background:
-    conic-gradient(
-      from 180deg,
-      rgba(102, 233, 201, 0.96) 0deg,
-      rgba(90, 105, 255, 0.95) calc(var(--progress) * 1turn),
-      rgba(153, 177, 216, 0.12) calc(var(--progress) * 1turn)
-    );
-  box-shadow: 0 30px 60px rgba(2, 7, 16, 0.35);
+.stage-toolbar {
+  margin-bottom: 8px;
 }
 
-.stage-core {
+.stage-square {
+  width: min(100%, 620px);
+  aspect-ratio: 1;
   width: 100%;
-  height: 100%;
+  max-width: 620px;
+  min-height: min(70vh, 620px);
   display: grid;
   place-items: center;
   gap: 12px;
   padding: 24px;
   text-align: center;
-  border-radius: 50%;
+  border-radius: 28px;
   background: rgba(5, 11, 22, 0.96);
   border: 1px solid rgba(153, 177, 216, 0.12);
+  box-shadow: 0 30px 60px rgba(2, 7, 16, 0.35);
 }
 
-.stage-core h2 {
+.stage-square h2 {
   font-size: clamp(1.4rem, 2vw, 2rem);
 }
 
@@ -368,7 +364,7 @@ button {
   }
 
   .stage-panel {
-    min-height: 540px;
+    min-height: 600px;
   }
 }
 
@@ -387,6 +383,14 @@ button {
   .stage-panel {
     min-height: 480px;
     padding: 18px;
+  }
+
+  .stage-touch-target {
+    min-height: 52vh;
+  }
+
+  .stage-square {
+    min-height: 50vh;
   }
 
   .timer-actions {
