@@ -257,15 +257,6 @@ const App = () => {
 
   return (
     <main className="app-shell">
-      <section className="hero">
-        <p className="eyebrow">Timplo</p>
-        <h1>Simple tap-to-control countdown timers for web and mobile.</h1>
-        <p className="hero-copy">
-          Create and manage your timer list, then pick one timer to open an enlarged
-          square view where tap controls start, stop, and resume.
-        </p>
-      </section>
-
       {viewMode === 'library' ? (
         <section className="layout layout-library">
           <TimerList
