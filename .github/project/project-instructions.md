@@ -5,20 +5,20 @@
 - Project name: Timplo
 - Goal: a simple web-based multi-timer app that runs on GitHub Pages.
 - Primary users: people who want quick named countdown timers on desktop and mobile browsers.
-- Constraints: static hosting only, no backend, mobile-friendly interactions, and a small maintainable codebase.
+- Constraints: static hosting only, no backend, mobile-friendly interactions, at most 10 timers, timer durations from `00:01` to `59:59`, and short timer names up to 15 characters.
 
 ## Architecture Instantiation
 
 - Major modules and responsibilities:
-  - `src/App.tsx`: app orchestration and timer state coordination.
+  - `src/App.tsx`: app orchestration, view navigation, and timer state coordination.
   - `src/timer.ts`: timer types, formatting, creation, and local storage helpers.
-  - `src/components/TimerList.tsx`: list editing and timer selection.
-  - `src/components/TimerStage.tsx`: active countdown view and tap-to-pause interaction.
+  - `src/components/TimerList.tsx`: timer library view with add, edit, delete, and selection actions.
+  - `src/components/TimerStage.tsx`: selected timer view with back navigation, enlarged timer display, reset button, and tap-to-run interaction.
   - `.github/workflows/deploy.yml`: GitHub Pages deployment pipeline.
 - Module ownership map: app state in the page shell, display logic in components, timer rules in `src/timer.ts`.
 - Allowed dependency directions: components may depend on shared timer helpers; helpers must not depend on React.
 - Boundary contract catalog: local timer state shape, localStorage key `timplo.timer-state.v1`, and the GitHub Pages build output under `dist`.
-- Behavior-oriented slicing plan: timer library, active countdown stage, persistence, and deployment.
+- Behavior-oriented slicing plan: timer library view, selected timer view, tap-to-run controls, persistence, and deployment.
 
 ## Interface Governance Instantiation
 
@@ -29,10 +29,10 @@
 
 ## Verification Instantiation
 
-- Critical end-to-end flows: create timers, edit names and durations, select a timer, pause/resume by click or tap, reset, and deploy the static build.
+- Critical end-to-end flows: open the timer library view, create timers, edit names and durations, delete timers from the library view, select a timer without auto-start, open the selected timer view, tap to start, tap to stop, tap to resume, reset from below the selected timer, return to the library view, switch selection while preserving remaining time, and deploy the static build.
 - Required boundary contracts to test: timer formatting, countdown tick behavior, and localStorage load/save.
 - Integration points with highest failure risk: browser timer ticking, touch interactions, and GitHub Pages asset paths.
-- Component/service checks for fault localization: timer list edits and the active countdown panel.
+- Component/service checks for fault localization: timer library view, selected timer view transitions, and the enlarged countdown panel.
 - Optional unit-test focus areas: formatting and time normalization helpers.
 
 ## Delivery Instantiation
