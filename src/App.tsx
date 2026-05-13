@@ -39,10 +39,20 @@ const tickTimers = (timers: Timer[]): Timer[] =>
   });
 
 type ViewMode = 'library' | 'selected';
+const selectedTimerStorageKey = 'timplo.selected-timer-id.v1';
+
+const loadSelectedTimerId = (): string | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const value = window.localStorage.getItem(selectedTimerStorageKey);
+  return value && value.trim().length > 0 ? value : null;
+};
 
 const App = () => {
   const [timers, setTimers] = useState<Timer[]>(loadTimers);
-  const [selectedTimerId, setSelectedTimerId] = useState<string | null>(null);
+  const [selectedTimerId, setSelectedTimerId] = useState<string | null>(loadSelectedTimerId);
   const [viewMode, setViewMode] = useState<ViewMode>('library');
 
   useEffect(() => {
@@ -65,6 +75,18 @@ const App = () => {
   useEffect(() => {
     saveTimers(timers);
   }, [timers]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (selectedTimerId) {
+      window.localStorage.setItem(selectedTimerStorageKey, selectedTimerId);
+    } else {
+      window.localStorage.removeItem(selectedTimerStorageKey);
+    }
+  }, [selectedTimerId]);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {

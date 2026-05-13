@@ -13,7 +13,7 @@ This file uses only these workflow states:
 | --- | --- | --- | --- | --- |
 | BI-260002 | Multi-timer editing experience | Done | [BI-260002.md](backlog-items/BI-260002.md) | Implemented and build-verified: timer library view now supports add, edit, delete, and select actions with limits enforced. |
 | BI-260003 | Active countdown interaction | Done | [BI-260003.md](backlog-items/BI-260003.md) | Implemented and build-verified: selected timer view with back navigation, enlarged square timer, tap start/stop/resume, and reset below the timer. |
-| BI-260004 | Persistence, responsiveness, and deployment | Ready | [BI-260004.md](backlog-items/BI-260004.md) | Scope is clear: local persistence, mobile responsiveness, and static deployment. |
+| BI-260004 | Persistence, responsiveness, and deployment | Done | [BI-260004.md](backlog-items/BI-260004.md) | Implemented and build-verified: browser persistence hardened, selected timer restored after refresh, responsive behavior retained, and GitHub Pages deployment workflow documented and configured. |
 
 ## Historical Items
 

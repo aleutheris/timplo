@@ -14,6 +14,10 @@ export type TimerDraft = {
 };
 
 export const storageKey = 'timplo.timer-state.v1';
+const MAX_TIMERS = 10;
+const MAX_NAME_LENGTH = 15;
+const MIN_DURATION_SECONDS = 1;
+const MAX_DURATION_SECONDS = 59 * 60 + 59;
 
 export const formatTime = (totalSeconds: number): string => {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
@@ -92,18 +96,31 @@ export const loadTimers = (): Timer[] => {
       return createStarterTimers();
     }
 
-    const timers = parsed.filter(isTimerLike).map((timer) => ({
-      ...timer,
-      name: timer.name.trim() || 'Timer',
-      durationSeconds: Math.max(0, Math.floor(timer.durationSeconds)),
-      remainingSeconds: Math.min(
-        Math.max(0, Math.floor(timer.remainingSeconds)),
-        Math.max(0, Math.floor(timer.durationSeconds)),
-      ),
-      hasStarted: typeof (timer as { hasStarted?: unknown }).hasStarted === 'boolean'
-        ? Boolean((timer as { hasStarted?: boolean }).hasStarted)
-        : false,
-    }));
+    const timers = parsed
+      .filter(isTimerLike)
+      .slice(0, MAX_TIMERS)
+      .map((timer) => {
+        const safeDurationSeconds = Math.min(
+          MAX_DURATION_SECONDS,
+          Math.max(MIN_DURATION_SECONDS, Math.floor(timer.durationSeconds)),
+        );
+        const safeRemainingSeconds = Math.min(
+          safeDurationSeconds,
+          Math.max(MIN_DURATION_SECONDS, Math.floor(timer.remainingSeconds)),
+        );
+        const safeHasStarted = typeof (timer as { hasStarted?: unknown }).hasStarted === 'boolean'
+          ? Boolean((timer as { hasStarted?: boolean }).hasStarted)
+          : false;
+
+        return {
+          ...timer,
+          name: timer.name.trim().slice(0, MAX_NAME_LENGTH) || 'Timer',
+          durationSeconds: safeDurationSeconds,
+          remainingSeconds: safeRemainingSeconds,
+          isRunning: false,
+          hasStarted: safeHasStarted,
+        };
+      });
 
     return timers.length > 0 ? timers : createStarterTimers();
   } catch {
