@@ -39,7 +39,8 @@ button {
 }
 
 .app-shell {
-  width: min(1200px, calc(100vw - 32px));
+  /* 100% (not 100vw) so a vertical scrollbar cannot push content off-screen. */
+  width: min(1200px, 100% - 32px);
   margin: 0 auto;
   padding: 32px 0 48px;
 }
@@ -266,9 +267,14 @@ button {
 
 .stage-panel {
   position: relative;
+  /* Clips the decorative blob below. Safe because the panel now sizes to its
+     content (no fixed min-height), so real content can never be cut off. */
   overflow: hidden;
-  min-height: 680px;
   padding: 24px;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-width: 0;
 }
 
 .stage-panel::before {
@@ -300,7 +306,7 @@ button {
 
 .stage-touch-target {
   width: 100%;
-  min-height: 520px;
+  min-width: 0;
   display: grid;
   place-items: center;
   border: 0;
@@ -314,28 +320,53 @@ button {
 }
 
 .stage-square {
-  width: min(100%, 620px);
+  /* Square that fits BOTH axes: bounded by the available width, a 620px cap,
+     and the viewport height — so it never overflows a narrow or short window.
+     svh (with a vh fallback) keeps it stable under mobile browser chrome. */
+  inline-size: min(100%, 620px, 70vh);
+  inline-size: min(100%, 620px, 70svh);
   aspect-ratio: 1;
-  width: 100%;
-  max-width: 620px;
-  min-height: min(70vh, 620px);
+  min-width: 0;
+  /* Text below scales from this box (cqi), not from the viewport. */
+  container-type: inline-size;
   display: grid;
-  place-items: center;
-  gap: 12px;
-  padding: 24px;
+  /* minmax(0, 1fr) + stretch keeps children bounded by the square, so a long
+     timer name wraps instead of overflowing. Centring is done via text-align. */
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  justify-items: stretch;
+  gap: 2%;
+  padding: clamp(10px, 4vmin, 24px);
   text-align: center;
+  overflow-wrap: anywhere;
   border-radius: 28px;
   background: rgba(5, 11, 22, 0.96);
   border: 1px solid rgba(153, 177, 216, 0.12);
   box-shadow: 0 30px 60px rgba(2, 7, 16, 0.35);
 }
 
+.stage-square > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stage-square .panel-label {
+  font-size: clamp(0.55rem, 3.5cqi, 0.75rem);
+}
+
 .stage-square h2 {
-  font-size: clamp(1.4rem, 2vw, 2rem);
+  font-size: clamp(0.9rem, 8cqi, 2rem);
 }
 
 .stage-time {
-  font-size: clamp(3rem, 9vw, 5.6rem);
+  /* Fallback for browsers without container units, then the container-aware
+     size. 26cqi keeps "59:59" (~3em wide) well inside the square's padding. */
+  font-size: clamp(1.25rem, 11vmin, 5.6rem);
+  font-size: clamp(1.25rem, 26cqi, 5.6rem);
+}
+
+.stage-square .stage-status {
+  font-size: clamp(0.7rem, 5cqi, 1rem);
 }
 
 .stage-status,
@@ -347,7 +378,7 @@ button {
 }
 
 .stage-empty {
-  min-height: 480px;
+  min-height: min(480px, 50svh);
   display: grid;
   align-content: center;
   gap: 12px;
@@ -362,15 +393,11 @@ button {
   .layout {
     grid-template-columns: 1fr;
   }
-
-  .stage-panel {
-    min-height: 600px;
-  }
 }
 
 @media (max-width: 640px) {
   .app-shell {
-    width: min(100vw - 20px, 1200px);
+    width: min(100% - 20px, 1200px);
     padding-top: 18px;
   }
 
@@ -381,16 +408,12 @@ button {
   }
 
   .stage-panel {
-    min-height: 480px;
     padding: 18px;
-  }
-
-  .stage-touch-target {
-    min-height: 52vh;
+    gap: 12px;
   }
 
   .stage-square {
-    min-height: 50vh;
+    border-radius: 22px;
   }
 
   .timer-actions {
