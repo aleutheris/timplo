@@ -15,10 +15,15 @@ view.
 
 ## Near-term direction
 
-The MVP scope (EPIC-260001 through EPIC-260004) is complete. No new epics are in flight. Next
-work, if any, should enter as new epics in `epic-index.md` (Ideation → Ready → Done).
+The MVP scope (EPIC-260001 through EPIC-260004) is complete. **EPIC-260005** (adaptive duration
+input) is in Ideation: duration editing becomes input-modality aware — `▲`/`▼` steppers for fine
+pointers, native `<select>` rollers for coarse pointers. Further work should enter as new epics
+in `epic-index.md` (Ideation → Ready → Done).
 
 ## Pending decisions
 
-- None open. Boundary surfaces that would require an ADR/ICR if changed: the persisted timer
-  state shape and its storage key, and the static build/deploy contract (see `contract-index.md`).
+- **Adaptive input by pointer modality** — whether the app branches UI on `(pointer: coarse)`
+  rather than viewport width is a shape-level decision; to be recorded as `ADR-260003` when
+  EPIC-260005 reaches Ready.
+- Boundary surfaces that would require an ADR/ICR if changed: the persisted timer state shape
+  and its storage key, and the static build/deploy contract (see `contract-index.md`).

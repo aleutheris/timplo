@@ -10,6 +10,7 @@ lifecycle follow `docs/governance/generic/process/artifact-model.md`.
 | --- | --- | --- | --- | --- | --- |
 | ADR-260001 | Use React, TypeScript, and Vite for the timer app | Accepted | [ADR-260001.md](adr/ADR-260001.md) | REQ-OR-260001, REQ-CR-260001, EPIC-260001, EPIC-260004 | Foundational stack + static-deploy decision. |
 | ADR-260002 | Single active timer model with browser-local persistence | Accepted | [ADR-260002.md](adr/ADR-260002.md) | REQ-FR-260001, REQ-FR-260003, REQ-QR-260003, EPIC-260002, EPIC-260003 | One selected/running timer at a time; localStorage persistence. |
+| ADR-260003 | Adapt duration input to pointer modality, not viewport width | Accepted | [ADR-260003.md](adr/ADR-260003.md) | REQ-FR-260002, REQ-CR-260002, REQ-QR-260002, EPIC-260005 | `(pointer: coarse)` picks steppers vs native select roller. |
 
 ## Tracking Rules
 

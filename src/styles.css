@@ -276,6 +276,73 @@ button {
   gap: 12px;
 }
 
+.duration-label {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #b9c8e3;
+  font-size: 0.9rem;
+}
+
+.duration-control {
+  position: relative;
+}
+
+/* Room for the steppers so long values never slide under them. */
+.duration-control input {
+  padding-right: 38px;
+}
+
+.duration-steppers {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  gap: 2px;
+  transform: translateY(-50%);
+}
+
+.stepper-button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 17px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(170, 187, 221, 0.14);
+  color: #dce6fb;
+  font-size: 0.6rem;
+  line-height: 1;
+  transition: background-color 120ms ease;
+}
+
+.stepper-button:hover {
+  background: rgba(170, 187, 221, 0.26);
+}
+
+.stepper-button:active {
+  background: rgba(123, 140, 255, 0.5);
+}
+
+.duration-select {
+  width: 100%;
+  border: 1px solid rgba(153, 177, 216, 0.16);
+  border-radius: 16px;
+  background: rgba(3, 8, 18, 0.55);
+  color: #f5f7fb;
+  padding: 0.85rem 0.9rem;
+  /* Comfortable touch target — this branch only renders on coarse pointers. */
+  min-height: 48px;
+  font-variant-numeric: tabular-nums;
+}
+
+.duration-select.is-invalid {
+  border-color: rgba(255, 122, 122, 0.85);
+  background: rgba(70, 18, 24, 0.55);
+  color: #ffd9d9;
+}
+
 .timer-card input.is-invalid {
   border-color: rgba(255, 122, 122, 0.85);
   background: rgba(70, 18, 24, 0.55);

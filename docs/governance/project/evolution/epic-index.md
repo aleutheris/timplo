@@ -5,10 +5,18 @@ Registry of epics and their priority ordering (it absorbs the prioritization the
 This index is the single source of truth for **epic state**. States and lifecycle follow
 `artifact-model.md` and `epic-process.md`.
 
-Priority order below reflects the original delivery sequence. All epics are **Done** (the MVP
-scope is complete); reprioritize this list when new epics enter Ideation.
+Active epics are listed first in priority order; completed epics follow in their original
+delivery sequence, frozen for history.
 
-## Index
+## Active
+
+Priority score per `epic-process.md`: `(User value + Urgency + Risk reduction) / Effort`.
+
+| Priority | ID | Title | Status | Epic | Related | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | EPIC-260005 | Adaptive duration input (desktop steppers + touch roller) | Ready | [EPIC-260005.md](epics/EPIC-260005.md) | REQ-FR-260002, REQ-CR-260002, ADR-260003 | Score 4.0 `(4+2+2)/2`. Implemented 2026-07-20; all tasks `In Review` awaiting the implementation-review gate. |
+
+## Completed
 
 | Priority | ID | Title | Status | Epic | Related | Notes |
 | --- | --- | --- | --- | --- | --- | --- |

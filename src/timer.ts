@@ -64,6 +64,19 @@ export const parseDuration = (minutes: string, seconds: string): number | null =
   return total >= MIN_DURATION_SECONDS && total <= MAX_DURATION_SECONDS ? total : null;
 };
 
+/**
+ * Next value for a duration field after a stepper press or arrow key. Clamps to
+ * 0-59 with no wrap-around and no carry into the adjacent field; a value already
+ * outside the range steps from the clamped edge (so "99" then down gives "58").
+ */
+export const stepDurationField = (raw: string, delta: number): string => {
+  const trimmed = raw.trim();
+  const digits = /^\d+$/.test(trimmed) ? Number(trimmed) : 0;
+  const base = Math.min(MAX_DURATION_FIELD, Math.max(0, digits));
+
+  return String(Math.min(MAX_DURATION_FIELD, Math.max(0, base + delta)));
+};
+
 export const clampDuration = (minutes: number, seconds: number): number => {
   const safeMinutes = Number.isFinite(minutes) ? Math.max(0, Math.floor(minutes)) : 0;
   const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;

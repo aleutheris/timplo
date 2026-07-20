@@ -9,7 +9,7 @@ Status values and archival follow `docs/governance/generic/process/artifact-mode
 | ID | Title | Status | Record | Related | Notes |
 | --- | --- | --- | --- | --- | --- |
 | REQ-FR-260001 | Multi-timer countdown behavior | Active | [REQ-FR-260001.md](requirements/REQ-FR-260001.md) | ADR-260002, EPIC-260001, EPIC-260002 | Core multi-timer behavior. |
-| REQ-FR-260002 | Multiple named timers | Active | [REQ-FR-260002.md](requirements/REQ-FR-260002.md) | ADR-260002, EPIC-260002 | Library view: add/name/edit/delete. |
+| REQ-FR-260002 | Multiple named timers | Active | [REQ-FR-260002.md](requirements/REQ-FR-260002.md) | ADR-260002, ADR-260003, EPIC-260002, EPIC-260005 | Library view: add/name/edit/delete; non-blocking, pointer-adaptive duration entry. |
 | REQ-FR-260003 | Active timer switching and control | Active | [REQ-FR-260003.md](requirements/REQ-FR-260003.md) | ADR-260002, EPIC-260003 | One selected/running timer at a time. |
 | REQ-FR-260004 | Reset and finish behavior | Active | [REQ-FR-260004.md](requirements/REQ-FR-260004.md) | ADR-260002, EPIC-260003 | Reset + auto-return to paused at zero. |
 | REQ-FR-260005 | Countdown visual state | Active | [REQ-FR-260005.md](requirements/REQ-FR-260005.md) | ADR-260002, EPIC-260003 | Distinct paused/running/reset visuals. |

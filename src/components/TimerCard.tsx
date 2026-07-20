@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Timer, formatTime, parseDuration, parseDurationField } from '../timer';
+import { DurationField } from './DurationField';
 
 type TimerCardProps = {
   isActive: boolean;
@@ -8,6 +9,7 @@ type TimerCardProps = {
   onEditName: (timerId: string, name: string) => void;
   onSelectTimer: (timerId: string) => void;
   timer: Timer;
+  usesCoarsePointer: boolean;
 };
 
 export const TimerCard = ({
@@ -17,6 +19,7 @@ export const TimerCard = ({
   onEditName,
   onSelectTimer,
   timer,
+  usesCoarsePointer,
 }: TimerCardProps) => {
   // Drafts hold exactly what the user typed, including an empty field. A null
   // draft means "not being edited" and falls back to the committed duration.
@@ -92,35 +95,25 @@ export const TimerCard = ({
       </label>
 
       <div className="time-input-row">
-        <label>
-          <span>Minutes</span>
-          <input
-            aria-describedby={errorText ? errorId : undefined}
-            aria-invalid={minutesInvalid || totalTooShort}
-            aria-label={`Minutes for ${timer.name}`}
-            className={minutesInvalid || totalTooShort ? 'is-invalid' : undefined}
-            inputMode="numeric"
-            maxLength={2}
-            type="text"
-            value={minutes}
-            onChange={(event) => editMinutes(event.target.value)}
-          />
-        </label>
+        <DurationField
+          ariaLabel={`Minutes for ${timer.name}`}
+          describedBy={errorText ? errorId : undefined}
+          isInvalid={minutesInvalid || totalTooShort}
+          label="Minutes"
+          usesCoarsePointer={usesCoarsePointer}
+          value={minutes}
+          onChange={editMinutes}
+        />
 
-        <label>
-          <span>Seconds</span>
-          <input
-            aria-describedby={errorText ? errorId : undefined}
-            aria-invalid={secondsInvalid || totalTooShort}
-            aria-label={`Seconds for ${timer.name}`}
-            className={secondsInvalid || totalTooShort ? 'is-invalid' : undefined}
-            inputMode="numeric"
-            maxLength={2}
-            type="text"
-            value={seconds}
-            onChange={(event) => editSeconds(event.target.value)}
-          />
-        </label>
+        <DurationField
+          ariaLabel={`Seconds for ${timer.name}`}
+          describedBy={errorText ? errorId : undefined}
+          isInvalid={secondsInvalid || totalTooShort}
+          label="Seconds"
+          usesCoarsePointer={usesCoarsePointer}
+          value={seconds}
+          onChange={editSeconds}
+        />
       </div>
 
       {errorText ? (

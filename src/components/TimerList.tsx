@@ -1,4 +1,5 @@
 import { Timer } from '../timer';
+import { useCoarsePointer } from '../useCoarsePointer';
 import { TimerCard } from './TimerCard';
 
 type TimerListProps = {
@@ -21,33 +22,39 @@ export const TimerList = ({
   onEditName,
   onSelectTimer,
   timers,
-}: TimerListProps) => (
-  <aside className="panel timer-list-panel">
-    <div className="panel-heading">
-      <div>
-        <p className="panel-label">Timer library</p>
-        <h2>Build a stack of timers</h2>
+}: TimerListProps) => {
+  // Resolved once here rather than per card, so there is a single media listener.
+  const usesCoarsePointer = useCoarsePointer();
+
+  return (
+    <aside className="panel timer-list-panel">
+      <div className="panel-heading">
+        <div>
+          <p className="panel-label">Timer library</p>
+          <h2>Build a stack of timers</h2>
+        </div>
+
+        <button className="secondary-button" type="button" onClick={onAddTimer} disabled={!canAddTimer}>
+          Add timer
+        </button>
       </div>
 
-      <button className="secondary-button" type="button" onClick={onAddTimer} disabled={!canAddTimer}>
-        Add timer
-      </button>
-    </div>
+      {!canAddTimer ? <p className="panel-helper">Maximum of 10 timers reached.</p> : null}
 
-    {!canAddTimer ? <p className="panel-helper">Maximum of 10 timers reached.</p> : null}
-
-    <div className="timer-grid">
-      {timers.map((timer) => (
-        <TimerCard
-          key={timer.id}
-          isActive={timer.id === activeTimerId}
-          onDeleteTimer={onDeleteTimer}
-          onEditDuration={onEditDuration}
-          onEditName={onEditName}
-          onSelectTimer={onSelectTimer}
-          timer={timer}
-        />
-      ))}
-    </div>
-  </aside>
-);
+      <div className="timer-grid">
+        {timers.map((timer) => (
+          <TimerCard
+            key={timer.id}
+            isActive={timer.id === activeTimerId}
+            onDeleteTimer={onDeleteTimer}
+            onEditDuration={onEditDuration}
+            onEditName={onEditName}
+            onSelectTimer={onSelectTimer}
+            timer={timer}
+            usesCoarsePointer={usesCoarsePointer}
+          />
+        ))}
+      </div>
+    </aside>
+  );
+};
