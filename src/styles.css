@@ -149,9 +149,24 @@ button {
   color: #f3f6ff;
 }
 
-.secondary-button:disabled {
+.secondary-button:disabled,
+.primary-button:disabled,
+.danger-button:disabled,
+.timer-card-head:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+/* Disabled controls must not lift on hover — it reads as interactive. */
+.secondary-button:disabled:hover,
+.primary-button:disabled:hover,
+.danger-button:disabled:hover {
+  transform: none;
+}
+
+.primary-button:disabled {
+  background: rgba(170, 187, 221, 0.16);
+  color: #cfdaf0;
 }
 
 .primary-button {
@@ -259,6 +274,28 @@ button {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.timer-card input.is-invalid {
+  border-color: rgba(255, 122, 122, 0.85);
+  background: rgba(70, 18, 24, 0.55);
+  color: #ffd9d9;
+}
+
+.timer-card input.is-invalid:focus-visible {
+  outline: 2px solid rgba(255, 122, 122, 0.9);
+  outline-offset: 1px;
+}
+
+.timer-card-invalid {
+  border-color: rgba(255, 122, 122, 0.45);
+}
+
+.field-error {
+  margin: -4px 0 12px;
+  color: #ffb3b3;
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
 
 .timer-actions {

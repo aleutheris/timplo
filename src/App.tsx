@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Timer, clampDuration, createTimer, formatTime, loadTimers, saveTimers } from './timer';
+import { Timer, createTimer, formatTime, loadTimers, saveTimers } from './timer';
 import { TimerList } from './components/TimerList';
 import { TimerStage } from './components/TimerStage';
 
@@ -114,40 +114,17 @@ const App = () => {
     }));
   };
 
-  const updateMinutes = (timerId: string, minutes: string) => {
-    const parsedMinutes = Number.parseInt(minutes, 10);
+  // The card only commits a duration it has already validated; the clamp here
+  // is a guardrail for the stored invariant, not input correction.
+  const updateDuration = (timerId: string, durationSeconds: number) => {
+    const nextDurationSeconds = keepDurationInRange(durationSeconds);
 
-    patchTimer(timerId, (timer) => {
-      const nextDurationSeconds = keepDurationInRange(clampDuration(
-        Number.isFinite(parsedMinutes) ? parsedMinutes : 0,
-        timer.durationSeconds % 60,
-      ));
-
-      return {
-        ...timer,
-        durationSeconds: nextDurationSeconds,
-        remainingSeconds: nextDurationSeconds,
-        isRunning: false,
-      };
-    });
-  };
-
-  const updateSeconds = (timerId: string, seconds: string) => {
-    const parsedSeconds = Number.parseInt(seconds, 10);
-
-    patchTimer(timerId, (timer) => {
-      const nextDurationSeconds = keepDurationInRange(clampDuration(
-        Math.floor(timer.durationSeconds / 60),
-        Number.isFinite(parsedSeconds) ? parsedSeconds : 0,
-      ));
-
-      return {
-        ...timer,
-        durationSeconds: nextDurationSeconds,
-        remainingSeconds: nextDurationSeconds,
-        isRunning: false,
-      };
-    });
+    patchTimer(timerId, (timer) => ({
+      ...timer,
+      durationSeconds: nextDurationSeconds,
+      remainingSeconds: nextDurationSeconds,
+      isRunning: false,
+    }));
   };
 
   const addTimer = () => {
@@ -251,7 +228,11 @@ const App = () => {
   const selectedTimerDisplay = selectedTimer
     ? {
         ...selectedTimer,
-        state: selectedTimer.isRunning ? 'running' : selectedTimer.hasStarted ? 'stopped' : 'initial',
+        state: (selectedTimer.isRunning
+          ? 'running'
+          : selectedTimer.hasStarted
+            ? 'stopped'
+            : 'initial') as 'initial' | 'running' | 'stopped',
       }
     : null;
 
@@ -264,9 +245,8 @@ const App = () => {
             canAddTimer={timers.length < MAX_TIMERS}
             onAddTimer={addTimer}
             onDeleteTimer={removeTimer}
-            onEditMinutes={updateMinutes}
+            onEditDuration={updateDuration}
             onEditName={updateName}
-            onEditSeconds={updateSeconds}
             onSelectTimer={selectTimer}
             timers={timers}
           />

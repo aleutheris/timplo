@@ -16,8 +16,9 @@ export type TimerDraft = {
 export const storageKey = 'timplo.timer-state.v1';
 const MAX_TIMERS = 10;
 const MAX_NAME_LENGTH = 15;
-const MIN_DURATION_SECONDS = 1;
-const MAX_DURATION_SECONDS = 59 * 60 + 59;
+export const MIN_DURATION_SECONDS = 1;
+export const MAX_DURATION_SECONDS = 59 * 60 + 59;
+const MAX_DURATION_FIELD = 59;
 
 export const formatTime = (totalSeconds: number): string => {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
@@ -27,6 +28,40 @@ export const formatTime = (totalSeconds: number): string => {
   return `${minutes.toString().padStart(2, '0')}:${seconds
     .toString()
     .padStart(2, '0')}`;
+};
+
+/**
+ * Parses one duration field. Returns null when the raw text is not a whole
+ * number in 0-59 — including while the field is empty mid-edit, which callers
+ * surface as an invalid state rather than correcting it.
+ */
+export const parseDurationField = (raw: string): number | null => {
+  const trimmed = raw.trim();
+
+  if (!/^\d+$/.test(trimmed)) {
+    return null;
+  }
+
+  const value = Number(trimmed);
+
+  return value <= MAX_DURATION_FIELD ? value : null;
+};
+
+/**
+ * Total duration in seconds for a minutes/seconds pair, or null when the pair
+ * is not a valid timer duration (00:01-59:59).
+ */
+export const parseDuration = (minutes: string, seconds: string): number | null => {
+  const safeMinutes = parseDurationField(minutes);
+  const safeSeconds = parseDurationField(seconds);
+
+  if (safeMinutes === null || safeSeconds === null) {
+    return null;
+  }
+
+  const total = safeMinutes * 60 + safeSeconds;
+
+  return total >= MIN_DURATION_SECONDS && total <= MAX_DURATION_SECONDS ? total : null;
 };
 
 export const clampDuration = (minutes: number, seconds: number): number => {
