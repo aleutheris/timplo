@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Solid disc so the icon stays legible on both light and dark browser tabs. -->
+  <circle cx="32" cy="32" r="30" fill="#5468ff" />
+  <!-- Hands are heavy and short: thin strokes disappear at 16px. -->
+  <g stroke="#ffffff" stroke-width="6" stroke-linecap="round">
+    <path d="M32 32V17" />
+    <path d="M32 32h13" />
+  </g>
+</svg>
