@@ -8,13 +8,14 @@ type TimerStageProps = {
 };
 
 export const TimerStage = ({ activeTimer, onBack, onResetTimer, onToggleTimer }: TimerStageProps) => {
-  const stageTone = activeTimer
+  // The panel keeps a fixed blue; only the inner square carries the state colour.
+  const squareTone = activeTimer
     ? activeTimer.state === 'running'
       ? 'stage-running'
       : activeTimer.state === 'stopped'
         ? 'stage-stopped'
         : 'stage-initial'
-    : 'stage-idle';
+    : 'stage-initial';
 
   const helperText = activeTimer
     ? activeTimer.state === 'running'
@@ -25,7 +26,7 @@ export const TimerStage = ({ activeTimer, onBack, onResetTimer, onToggleTimer }:
     : 'Select a timer from the library';
 
   return (
-    <section className={`panel stage-panel ${stageTone}`}>
+    <section className="panel stage-panel">
       <div className="stage-toolbar">
         <button className="secondary-button" type="button" onClick={onBack}>
           Back to timers
@@ -34,7 +35,7 @@ export const TimerStage = ({ activeTimer, onBack, onResetTimer, onToggleTimer }:
 
       {activeTimer ? (
         <button className="stage-touch-target" type="button" onClick={onToggleTimer}>
-          <div className="stage-square">
+          <div className={`stage-square ${squareTone}`}>
             <p className="panel-label">Selected timer</p>
             <h2>{activeTimer.name}</h2>
             <strong className="stage-time">{formatTime(activeTimer.remainingSeconds)}</strong>

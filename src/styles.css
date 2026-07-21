@@ -371,6 +371,8 @@ button {
 
 .stage-panel {
   position: relative;
+  /* Fixed blue in every timer state — the state colour lives on .stage-square. */
+  background: linear-gradient(160deg, rgba(14, 34, 67, 0.95), rgba(10, 25, 49, 0.95));
   /* Clips the decorative blob below. Safe because the panel now sizes to its
      content (no fixed min-height), so real content can never be cut off. */
   overflow: hidden;
@@ -390,22 +392,6 @@ button {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(119, 140, 255, 0.25), transparent 68%);
   filter: blur(8px);
-}
-
-.stage-initial {
-  background: linear-gradient(160deg, rgba(14, 34, 67, 0.95), rgba(10, 25, 49, 0.95));
-}
-
-.stage-running {
-  background: linear-gradient(160deg, rgba(10, 53, 38, 0.95), rgba(8, 38, 29, 0.95));
-}
-
-.stage-stopped {
-  background: linear-gradient(160deg, rgba(68, 54, 13, 0.95), rgba(49, 39, 10, 0.95));
-}
-
-.stage-idle {
-  background: linear-gradient(160deg, rgba(13, 18, 34, 0.94), rgba(7, 15, 29, 0.94));
 }
 
 .stage-touch-target {
@@ -447,6 +433,19 @@ button {
   background: rgba(5, 11, 22, 0.96);
   border: 1px solid rgba(153, 177, 216, 0.12);
   box-shadow: 0 30px 60px rgba(2, 7, 16, 0.35);
+}
+
+/* Timer state colours. Opaque so the panel's blue never bleeds through. */
+.stage-square.stage-initial {
+  background: linear-gradient(160deg, rgb(5, 11, 22), rgb(4, 9, 18));
+}
+
+.stage-square.stage-running {
+  background: linear-gradient(160deg, rgb(10, 53, 38), rgb(8, 38, 29));
+}
+
+.stage-square.stage-stopped {
+  background: linear-gradient(160deg, rgb(68, 54, 13), rgb(49, 39, 10));
 }
 
 .stage-square > * {
